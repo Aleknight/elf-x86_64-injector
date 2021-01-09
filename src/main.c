@@ -14,8 +14,7 @@
 #include "config.h"
 #include "elf-parser.h"
 #include "utils.h"
-
-#define PAGE_SIZE 0x1000
+#include "insertion.h"
 
 int main(int argc, char **argv)
 {
@@ -35,23 +34,13 @@ int main(int argc, char **argv)
     }
 
     to_infect_content = read_file(argv[1], NULL); 
-    insert = read_file(argv[2], &insert_size);
+    payload = read_file(argv[2], (uint64_t *) &payload_size);
+
+    if (payload_size < PAGE_SIZE) {
+	ERROR("The payload should have a size less than 0x%x", PAGE_SIZE);
+    }
 
     insert(to_infect_content, payload, payload_size);
     
-    setup_elf(to_infect_content);
-    text_section = get_section_by_name(".text");
-    exe_seg = get_exe_segment();
-
-    if (text_section == NULL) {
-	fprintf(stderr, "Get section failed");
-	exit(EXIT_FAILURE);
-    }
-    
-    start_of_text_section = to_infect_content + text_section->sh_offset;
-    start_of_seg = to_infect_content + exe_seg->p_offset;
-    end_of_seg = start_of_seg + exe_seg->p_filesz;
-
-    // Now we manage the insert
     return EXIT_SUCCESS;
 }

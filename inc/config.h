@@ -6,6 +6,8 @@
 /* ---------------- Macro definitions ---------------- */
 #define EXPECTED_ARGC 3
 
+#define PAGE_SIZE 0x1000
+
 /* ------------- Useful types definition ------------- */
 typedef uint8_t byte; 
 
