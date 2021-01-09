@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "elf-parser.h"
+#include "log.h"
 
 void setup_elf(byte *file_content)
 {
@@ -28,3 +29,21 @@ Elf64_Shdr *get_section_by_name(const char *section_name)
     return NULL;
 }
 
+Elf64_Phdr *get_exe_segment(void) 
+{
+    Elf64_Phdr *program_headers;
+
+    if (elf_header->e_phoff == 0) {
+	ERROR("No programm header for this one", NULL);
+    }
+    
+    program_headers = (Elf64_Phdr *)((void *)elf_header + elf_header->e_phoff);
+    for (uint64_t i = 0; i < elf_header->e_phnum; i++) {
+	if ((program_headers[i].p_flags & PF_X) && (program_headers[i].p_type & PT_LOAD)) {
+	    SUCCESS("Executable segment found ! Virtual @ %p", program_headers[i].p_vaddr);
+	    return &(program_headers[i]);
+	}
+    }
+
+    return NULL;
+}
