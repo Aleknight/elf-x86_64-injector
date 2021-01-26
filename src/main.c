@@ -18,14 +18,10 @@
 
 int main(int argc, char **argv)
 {
-    byte *to_infect_content = NULL;			// Buffer that contents the 
-    Elf64_Shdr *text_section;				// ELF Section header for the .text section
-    Elf64_Phdr *exe_seg;				// ELF Program header of an executable segment
-    byte *start_of_text_section;			// Pointer to the start and the end of the .text section
-    byte *start_of_seg, *end_of_seg;
-
+    byte *to_infect_content = NULL;
+    uint64_t to_infect_size;
     byte *payload = NULL;
-    uint16_t payload_size;
+    uint64_t payload_size;
 
     // We check if the usage is correct
     if (argc != EXPECTED_ARGC) {
@@ -33,14 +29,17 @@ int main(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
-    to_infect_content = read_file(argv[1], NULL); 
-    payload = read_file(argv[2], (uint64_t *) &payload_size);
+    to_infect_content = read_file(argv[1], &to_infect_size);
+    SUCCESS("Size of target %s : 0x%x", argv[1], to_infect_size);
+    setup_elf(to_infect_content);
+    payload = read_file(argv[2], &payload_size);
+    SUCCESS("Size of the payload %s : 0x%x", argv[2], payload_size);
 
-    if (payload_size < PAGE_SIZE) {
+    if (payload_size >= PAGE_SIZE) {
 	ERROR("The payload should have a size less than 0x%x", PAGE_SIZE);
     }
 
-    insert(to_infect_content, payload, payload_size);
-    
+    insert(to_infect_content, payload, to_infect_size, payload_size);
+
     return EXIT_SUCCESS;
 }

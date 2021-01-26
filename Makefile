@@ -1,11 +1,13 @@
 CC=gcc
 
-CFLAGS= -I./inc
+CFLAGS= -I./inc -g
 LDFLAGS=
 
 SOURCES = $(wildcard src/*.c)
 HEADERS = $(wildcard inc/*.h)
 OBJECTS = $(patsubst src/%.c,obj/%.o,$(SOURCES))
+
+.PHONY: all clean
 
 all: infector
 

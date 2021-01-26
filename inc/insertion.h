@@ -4,6 +4,6 @@
 #include "config.h"
 
 /* ---------------- Functio definitions ---------------- */
-void insert(byte *dest, byte *src, uint16_t size);
+void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t size);
 
 #endif

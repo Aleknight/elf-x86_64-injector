@@ -5,15 +5,21 @@
 
 #include "elf-parser.h"
 #include "log.h"
+#include "utils.h"
+
+Elf64_Ehdr *elf_header;
 
 void setup_elf(byte *file_content)
 {
     elf_header = (Elf64_Ehdr *) file_content;
 }
 
-Elf64_Addr get_entry_point(Elf64_Ehdr *elf_header)
-{
+Elf64_Addr get_entry_point() {
     return elf_header->e_entry;
+}
+
+void set_entry_point(Elf64_Addr vaddr) {
+    elf_header->e_entry = vaddr;
 }
 
 Elf64_Shdr *get_section_by_name(const char *section_name)
@@ -53,4 +59,23 @@ bool section_in_segment(Elf64_Shdr *section, Elf64_Phdr *segment) {
     byte *segment_base = (byte *)elf_header + segment->p_offset;
     byte *section_base = (byte *)elf_header + section->sh_offset;
     return segment_base <= section_base && section_base <= segment_base + segment->p_filesz;
+}
+
+void add_offset(uint64_t base, uint16_t value) {
+    Elf64_Phdr *segment_table = (Elf64_Phdr *)((void *)elf_header + elf_header->e_phoff);
+    Elf64_Half segment_table_size = elf_header->e_phnum;
+    Elf64_Shdr *section_table = (Elf64_Shdr *)((void *)elf_header + elf_header->e_shoff);
+    Elf64_Half section_table_size = elf_header->e_shnum;
+
+    G_ADD(elf_header->e_phoff, base, value);
+    G_ADD(elf_header->e_shoff, base, value);
+
+    for (Elf64_Half i = 0; i < segment_table_size; i++) {
+	G_ADD(segment_table[i].p_offset, base, value);
+	G_ADD(segment_table[i].p_vaddr, base, value);
+    }
+    for (Elf64_Half i = 0; i < section_table_size; i++) {
+	G_ADD(section_table[i].sh_offset, base, value);
+	G_ADD(section_table[i].sh_addr, base, value);
+    }
 }

@@ -53,3 +53,19 @@ byte *read_file(const char *filename, uint64_t *file_size) {
     }
     return file_content;
 }
+
+/*
+ * Write the _size_ first bytes of _buffer_
+ * in the _filename_ file
+ */
+void write_file(const char *filename, byte *buffer, uint64_t size) {
+
+    int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH | S_IWUSR);
+    if (fd == -1) {
+	perror("open error:");
+	exit(EXIT_FAILURE);
+    }
+    if (write(fd, buffer, size) != size) {
+	ERROR("Failed to write in the file %s\n", filename);
+    }
+}
