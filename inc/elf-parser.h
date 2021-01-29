@@ -25,4 +25,11 @@ bool section_in_segment(Elf64_Shdr *section, Elf64_Phdr *segment);
 
 void add_offset(uint64_t base, uint16_t value);
 
+void add_jump(byte **payload_addr, uint16_t *size, Elf64_Addr new_entry, Elf64_Addr old_entry);
+
+void update_symbol(const char *name, int64_t value);
+
+void update_section(const char *name, int64_t value);
+
+void update_dynsym(Elf64_Xword symbol, int64_t value);
 #endif /* _ELF_PARSER_H_ */

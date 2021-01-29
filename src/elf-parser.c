@@ -79,3 +79,37 @@ void add_offset(uint64_t base, uint16_t value) {
 	G_ADD(section_table[i].sh_addr, base, value);
     }
 }
+
+void update_symbol(const char *name, int64_t value) {
+    Elf64_Shdr *symtab = get_section_by_name(".symtab");
+    Elf64_Shdr *string_table = get_section_by_name(".strtab");
+    Elf64_Sym *symtable = (Elf64_Sym *)(((byte *)elf_header) + symtab->sh_offset);
+    for (uint64_t i = 0; i < (symtab->sh_size / sizeof(Elf64_Sym)); i++) {
+	if (strcmp(name, (byte *)elf_header + string_table->sh_offset + symtable[i].st_name) == 0) {
+	    symtable[i].st_value += value;
+	}
+    }
+}
+
+void update_section(const char *name, int64_t value) {
+    Elf64_Shdr *section_table = (void *)elf_header + elf_header->e_shoff;
+    Elf64_Shdr *string_table = get_section_by_name(".shstrtab");
+    for (uint64_t i = 0; i < elf_header->e_shnum; i++) {
+	if (strcmp(name, (byte *)elf_header + string_table->sh_offset + section_table[i].sh_name) == 0) {
+	    section_table[i].sh_offset += value;
+	    section_table[i].sh_addr += value;
+	}
+    }
+}
+
+void update_dynsym(Elf64_Xword symbol, int64_t value) {
+    Elf64_Shdr *dyn_table = get_section_by_name(".dynamic");
+    Elf64_Dyn *table = (Elf64_Dyn *)((byte *)elf_header + dyn_table->sh_offset);
+    while (table->d_tag != DT_NULL) {
+	if (table->d_tag == symbol) {
+	    table->d_un.d_ptr += value;
+	    return;
+	}
+	table += 1;
+    }
+}
