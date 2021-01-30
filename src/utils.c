@@ -60,7 +60,7 @@ byte *read_file(const char *filename, uint64_t *file_size) {
  */
 void write_file(const char *filename, byte *buffer, uint64_t size) {
 
-    int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH | S_IWUSR);
+    int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH | S_IWUSR | S_IXUSR);
     if (fd == -1) {
 	perror("open error:");
 	exit(EXIT_FAILURE);
