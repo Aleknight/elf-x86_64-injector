@@ -43,5 +43,7 @@ int main(int argc, char **argv)
 
     insert(to_infect_content, payload, to_infect_size, payload_size);
 
+    free(to_infect_content);
+
     return EXIT_SUCCESS;
 }
