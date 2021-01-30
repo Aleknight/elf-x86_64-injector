@@ -39,6 +39,8 @@ int main(int argc, char **argv)
 	ERROR("The payload should have a size less than 0x%x", PAGE_SIZE);
     }
 
+    check_payload_place(payload_size);
+
     insert(to_infect_content, payload, to_infect_size, payload_size);
 
     return EXIT_SUCCESS;

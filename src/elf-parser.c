@@ -11,6 +11,7 @@ Elf64_Ehdr *elf_header;
 Elf64_Shdr *section_table;
 Elf64_Shdr *string_table_section;
 Elf64_Shdr *dyn_section;
+Elf64_Shdr *text_section;
 
 void setup_elf(byte *file_content)
 {
@@ -18,6 +19,7 @@ void setup_elf(byte *file_content)
     section_table = (Elf64_Shdr *)(file_content + elf_header->e_shoff);
     string_table_section = &(section_table[elf_header->e_shstrndx]);
     dyn_section = get_section_by_name(".dynamic");
+    text_section = get_section_by_name(".text");
 }
 
 Elf64_Addr get_entry_point() {
@@ -91,5 +93,12 @@ void update_dynsym(Elf64_Xword symbol, int64_t value) {
 	    return;
 	}
 	table += 1;
+    }
+}
+
+void check_payload_place(uint64_t payload_size) {
+    uint64_t available_place = (PAGE_SIZE - (text_section->sh_size & (PAGE_SIZE - 1)));
+    if (payload_size > available_place) {
+	ERROR("The payload is too big to be insert. Payload size : 0x%x - Available place 0x%x", payload_size, available_place);
     }
 }

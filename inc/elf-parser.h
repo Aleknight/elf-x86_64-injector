@@ -32,4 +32,6 @@ void update_symbol(const char *name, int64_t value);
 void update_section(const char *name, int64_t value);
 
 void update_dynsym(Elf64_Xword symbol, int64_t value);
+
+void check_payload_place(uint64_t payload_size);
 #endif /* _ELF_PARSER_H_ */
