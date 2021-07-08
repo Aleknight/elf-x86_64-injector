@@ -13,8 +13,7 @@ Elf64_Shdr *string_table_section;
 Elf64_Shdr *dyn_section;
 Elf64_Shdr *text_section;
 
-void setup_elf(byte *file_content)
-{
+void setup_elf(byte *file_content) {
     elf_header = (Elf64_Ehdr *) file_content;
     section_table = (Elf64_Shdr *)(file_content + elf_header->e_shoff);
     string_table_section = &(section_table[elf_header->e_shstrndx]);
@@ -28,6 +27,28 @@ Elf64_Addr get_entry_point() {
 
 void set_entry_point(Elf64_Addr vaddr) {
     elf_header->e_entry = vaddr;
+}
+
+void change_got(Elf64_Addr vaddr, char *target_function) {
+    Elf64_Shdr *gotplt = get_section_by_name(".got.plt");
+    Elf64_Shdr *relaplt = get_section_by_name(".rela.plt");
+    Elf64_Shdr *dynstr = get_section_by_name(".dynstr");
+    Elf64_Shdr *dynsym = get_section_by_name(".dynsym");
+
+    Elf64_Sym *dynsym_table = (Elf64_Sym *)((byte *)elf_header + dynsym->sh_offset);
+    char *func_names = (char *)((byte *)elf_header + dynstr->sh_offset);
+    Elf64_Rela *dynamic_table = (Elf64_Rela *)((byte *)elf_header + relaplt->sh_offset);
+
+    for (uint16_t i = 0; i < relaplt->sh_size / sizeof(Elf64_Rela); i++) {
+	if (!strcmp(target_function, &(func_names[dynsym_table[ELF64_R_SYM(dynamic_table[i].r_info)].st_name]))) {
+	    SUCCESS("Found the function %s in the section .plt.got at offset %lx", target_function, dynamic_table[i].r_offset);
+	    dynamic_table->r_offset = vaddr;
+	    return;
+	}
+    }
+
+    /* Should never happen */
+    ERROR("Function %s not found in the dynsym", target_function);
 }
 
 Elf64_Shdr *get_section_by_name(const char *section_name)
