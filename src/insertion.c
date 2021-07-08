@@ -52,12 +52,12 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
 
     /* We allocate a new buffer for the new executable */
     final_product = calloc(dest_size + src_size, sizeof(byte));
-    SUCCESS("Allocation of 0x%x bytes", dest_size + src_size);
+    SUCCESS("Allocation of 0x%lx bytes", dest_size + src_size);
     /* We fill this new binary buffer */
     /* First we fill the content until we arrive to the place of the code we add */
     uint64_t i = 0;
     uint64_t j = 0;
-    SUCCESS("Write the first 0x%x bytes", text->sh_offset + text->sh_size - src_size);
+    SUCCESS("Write the first 0x%lx bytes", text->sh_offset + text->sh_size - src_size);
     for (; i < text->sh_offset + text->sh_size - src_size; i++) {
 	final_product[i] = dest[i];
     }
