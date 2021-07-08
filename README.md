@@ -1,6 +1,16 @@
-# .text infection mechanism
+# Infector 2
 
-## TODO
-[ ] Décaler toutes les sections après la section .text
-[ ] Write a bytecode
-[ ] Insert the bytecode
+Fork of infector1
+
+## Usage
+
+### Compilation
+
+```sh
+make
+```
+
+## Description
+
+This binary add a bytecode in the _.text_ section of the target binary.  
+It changes also the got sections in order to call the bytecode instead of the resolver.  
