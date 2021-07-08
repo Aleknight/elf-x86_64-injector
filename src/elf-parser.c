@@ -50,7 +50,7 @@ Elf64_Phdr *get_exe_segment(void)
     
     for (; i < elf_header->e_phnum; i++) {
 	if ((program_headers[i].p_flags & PF_X) && (program_headers[i].p_type & PT_LOAD)) {
-	    SUCCESS("Executable segment found ! Virtual @ %p", program_headers[i].p_vaddr);
+	    SUCCESS("Executable segment found ! Virtual @ %lu", program_headers[i].p_vaddr);
 	    return &(program_headers[i]);
 	}
     }
@@ -73,7 +73,7 @@ void update_symbol(const char *name, int64_t value) {
     Elf64_Shdr *string_table = get_section_by_name(".strtab");
     Elf64_Sym *symtable = (Elf64_Sym *)(((byte *)elf_header) + symtab->sh_offset);
     for (uint64_t i = 0; i < (symtab->sh_size / sizeof(Elf64_Sym)); i++) {
-	if (strcmp(name, (byte *)elf_header + string_table->sh_offset + symtable[i].st_name) == 0) {
+	if (strcmp(name, (char *)((byte *)elf_header + string_table->sh_offset + symtable[i].st_name)) == 0) {
 	    symtable[i].st_value += value;
 	}
     }
@@ -99,6 +99,6 @@ void update_dynsym(Elf64_Xword symbol, int64_t value) {
 void check_payload_place(uint64_t payload_size) {
     uint64_t available_place = (PAGE_SIZE - (text_section->sh_size & (PAGE_SIZE - 1)));
     if (payload_size > available_place) {
-	ERROR("The payload is too big to be insert. Payload size : 0x%x - Available place 0x%x", payload_size, available_place);
+	ERROR("The payload is too big to be insert. Payload size : 0x%lx - Available place 0x%lx", payload_size, available_place);
     }
 }

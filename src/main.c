@@ -30,10 +30,10 @@ int main(int argc, char **argv)
     }
 
     to_infect_content = read_file(argv[1], &to_infect_size);
-    SUCCESS("Size of target %s : 0x%x", argv[1], to_infect_size);
+    SUCCESS("Size of target %s : 0x%lx", argv[1], to_infect_size);
     setup_elf(to_infect_content);
     payload = read_file(argv[2], &payload_size);
-    SUCCESS("Size of the payload %s : 0x%x", argv[2], payload_size);
+    SUCCESS("Size of the payload %s : 0x%lx", argv[2], payload_size);
 
     if (payload_size >= PAGE_SIZE) {
 	ERROR("The payload should have a size less than 0x%x", PAGE_SIZE);
