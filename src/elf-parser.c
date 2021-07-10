@@ -41,8 +41,8 @@ void change_got(Elf64_Addr vaddr, char *target_function) {
 
     for (uint16_t i = 0; i < relaplt->sh_size / sizeof(Elf64_Rela); i++) {
 	if (!strcmp(target_function, &(func_names[dynsym_table[ELF64_R_SYM(dynamic_table[i].r_info)].st_name]))) {
-	    SUCCESS("Found the function %s in the section .plt.got at offset %lx", target_function, dynamic_table[i].r_offset);
-	    dynamic_table->r_offset = vaddr;
+	    SUCCESS("Found the function %s in the section .plt.got at offset %lx", target_function, dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset));
+	    *(uint64_t *)((byte *)elf_header + dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset)) = vaddr;
 	    return;
 	}
     }

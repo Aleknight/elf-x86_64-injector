@@ -38,7 +38,8 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
     }
 
     /* Now we update the entry point */
-    set_entry_point(new_entry);
+    // set_entry_point(new_entry);
+    change_got(new_entry, "free");
 
     update_symbol("_fini", src_size);
     update_section(".fini", src_size);

@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
     // We check if the usage is correct
     if (argc != EXPECTED_ARGC) {
-	fprintf(stderr, "Usage: %s <file-to-infect> <file-to-insert>", argv[0]);
+	fprintf(stderr, "Usage: %s <file-to-infect> <file-to-insert>\n", argv[0]);
 	exit(EXIT_FAILURE);
     }
 
