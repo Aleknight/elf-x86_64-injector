@@ -35,5 +35,5 @@ void update_dynsym(Elf64_Xword symbol, int64_t value);
 
 void check_payload_place(uint64_t payload_size);
 
-void change_got(Elf64_Addr vaddr, char *target_function);
+Elf64_Addr change_got(Elf64_Addr vaddr, char *target_function);
 #endif /* _ELF_PARSER_H_ */

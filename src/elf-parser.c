@@ -29,11 +29,13 @@ void set_entry_point(Elf64_Addr vaddr) {
     elf_header->e_entry = vaddr;
 }
 
-void change_got(Elf64_Addr vaddr, char *target_function) {
+Elf64_Addr change_got(Elf64_Addr vaddr, char *target_function) {
     Elf64_Shdr *gotplt = get_section_by_name(".got.plt");
     Elf64_Shdr *relaplt = get_section_by_name(".rela.plt");
     Elf64_Shdr *dynstr = get_section_by_name(".dynstr");
     Elf64_Shdr *dynsym = get_section_by_name(".dynsym");
+
+    Elf64_Addr old_addr = 0;
 
     Elf64_Sym *dynsym_table = (Elf64_Sym *)((byte *)elf_header + dynsym->sh_offset);
     char *func_names = (char *)((byte *)elf_header + dynstr->sh_offset);
@@ -42,8 +44,9 @@ void change_got(Elf64_Addr vaddr, char *target_function) {
     for (uint16_t i = 0; i < relaplt->sh_size / sizeof(Elf64_Rela); i++) {
 	if (!strcmp(target_function, &(func_names[dynsym_table[ELF64_R_SYM(dynamic_table[i].r_info)].st_name]))) {
 	    SUCCESS("Found the function %s in the section .plt.got at offset %lx", target_function, dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset));
-	    *(uint64_t *)((byte *)elf_header + dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset)) = vaddr;
-	    return;
+	    old_addr = *(Elf64_Addr *)((byte *)elf_header + dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset));
+	    *(Elf64_Addr *)((byte *)elf_header + dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset)) = vaddr;
+	    return old_addr;
 	}
     }
 
