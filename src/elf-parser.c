@@ -67,7 +67,7 @@ Elf64_Addr change_got(Elf64_Addr vaddr, char *target_function) {
 
     for (uint16_t i = 0; i < relaplt->sh_size / sizeof(Elf64_Rela); i++) {
         if (!strcmp(target_function, &(func_names[dynsym_table[ELF64_R_SYM(dynamic_table[i].r_info)].st_name]))) {
-            SUCCESS("Found the function %s in the section .plt.got at offset %lx", target_function, dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset));
+            SUCCESS("Found the function %s in the section .plt.got at offset 0x%lx", target_function, dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset));
             old_addr = *(Elf64_Addr *)((byte *)elf_header + dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset));
             *(Elf64_Addr *)((byte *)elf_header + dynamic_table[i].r_offset - (gotplt->sh_addr - gotplt->sh_offset)) = vaddr;
             return old_addr;
@@ -113,7 +113,7 @@ Elf64_Phdr *get_exe_segment(void)
     
     for (; i < elf_header->e_phnum; i++) {
         if ((program_headers[i].p_flags & PF_X) && (program_headers[i].p_type & PT_LOAD)) {
-            SUCCESS("Executable segment found ! Virtual @ %lu", program_headers[i].p_vaddr);
+            SUCCESS("Executable segment found ! Virtual @ %p", program_headers[i].p_vaddr);
             return &(program_headers[i]);
         }
     }
