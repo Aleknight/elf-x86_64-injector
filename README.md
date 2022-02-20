@@ -1,11 +1,11 @@
-# Infector
+# Injector
 
-Infects an ELF x86_64 binary with a x86_64 bytecode
+Injects a x86_64 bytecode into an ELF x86_64 binary
 
 ## Usage
 
 ```sh
-./infector <binary-to-infect> <payload-to-insert> <function-to-backdoor>
+./injector <binary-to-infect> <payload-to-inject> <function-to-backdoor>
 ```
 
 ### Compilation
