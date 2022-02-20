@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 /* ---------------- Macro definitions ---------------- */
-#define EXPECTED_ARGC 3
+#define EXPECTED_ARGC 4
 
 #define PAGE_SIZE 0x1000
 

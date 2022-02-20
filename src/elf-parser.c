@@ -113,7 +113,7 @@ Elf64_Phdr *get_exe_segment(void)
     
     for (; i < elf_header->e_phnum; i++) {
         if ((program_headers[i].p_flags & PF_X) && (program_headers[i].p_type & PT_LOAD)) {
-            SUCCESS("Executable segment found ! Virtual @ %p", program_headers[i].p_vaddr);
+            SUCCESS("Executable segment found ! Virtual @ %p", (void *)program_headers[i].p_vaddr);
             return &(program_headers[i]);
         }
     }

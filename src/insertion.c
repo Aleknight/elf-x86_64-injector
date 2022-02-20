@@ -20,7 +20,7 @@
  *
  * Insert a bytecode between the .text section and the .fini section
  */
-void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
+void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size, char *target_function) {
 
     byte *final_product = NULL;
     Elf64_Phdr *seg = get_exe_segment();
@@ -33,7 +33,7 @@ void insert(byte *dest, byte *src, uint64_t dest_size, uint16_t src_size) {
     }
 
     Elf64_Addr new_entry = text->sh_addr + text->sh_size;
-    old_entry = change_got(new_entry, "strlen");
+    old_entry = change_got(new_entry, target_function);
     add_jump(&src, &src_size, new_entry, old_entry);
 
     /* Then we find the segment that contains the text section */
