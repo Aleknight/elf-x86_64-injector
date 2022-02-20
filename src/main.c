@@ -25,8 +25,8 @@ int main(int argc, char **argv)
 
     // We check if the usage is correct
     if (argc != EXPECTED_ARGC) {
-	fprintf(stderr, "Usage: %s <file-to-infect> <file-to-insert>\n", argv[0]);
-	exit(EXIT_FAILURE);
+	    fprintf(stderr, "Usage: %s <file-to-infect> <file-to-insert>\n", argv[0]);
+	    exit(EXIT_FAILURE);
     }
 
     to_infect_content = read_file(argv[1], &to_infect_size);
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     SUCCESS("Size of the payload %s : 0x%lx", argv[2], payload_size);
 
     if (payload_size >= PAGE_SIZE) {
-	ERROR("The payload should have a size less than 0x%x", PAGE_SIZE);
+	    ERROR("The payload should have a size less than 0x%x", PAGE_SIZE);
     }
 
     check_payload_place(payload_size);
